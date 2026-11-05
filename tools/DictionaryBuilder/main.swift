@@ -69,6 +69,7 @@ do {
         "language": language,
         "edition": name,
         "extracted": sourceDate,
+        "revision": String(DictionaryFile.revision),
     ]) { $1 })
 } catch {
     FileHandle.standardError.write(Data("✗ \(error)\n".utf8))

@@ -10,6 +10,13 @@ import Foundation
 /// Ukrainian's words are read here rather than from a Wiktionary
 /// edition: kaikki.org reads no Ukrainian edition, and the English one
 /// describes 13 thousand Ukrainian nouns where VESUM describes them all.
+///
+/// **The LGPL asks the changed file's source to go with it**: this
+/// reading, `Tools/MorfologikDump`, `DictionaryFile` and the package are
+/// published at github.com/Alex-Sancho/leleka-dictionary-uk, which
+/// "Acknowledgements → VESUM" names. A change to any of them, or a new
+/// Ukrainian file, goes there too — before the app carrying it reaches
+/// anyone.
 enum Vesum {
     static let name = "vesum"
     static let source = "VESUM (github.com/brown-uk/dict_uk), through its LanguageTool package morfologik-ukrainian-lt"
@@ -77,7 +84,12 @@ enum Vesum {
                     plural: number == nil ? plurals[lemma].flatMap { $0.forms.count == 1 ? $0.forms[0] : nil } : nil
                 ))
             }
-            for partOfSpeech in (others[lemma] ?? []).sorted() {
+            // VESUM says nothing of which reading is the common one; the app
+            // takes a word's first. A preposition goes first — the part a
+            // learner needs told apart ("після", "навколо" are adverbs too)
+            // — the rest in name order.
+            let readings = (others[lemma] ?? []).sorted { ($0 == "preposition" ? 0 : 1, $0) < ($1 == "preposition" ? 0 : 1, $1) }
+            for partOfSpeech in readings {
                 entries.append(DictionaryFile.Entry(word: lemma, partOfSpeech: partOfSpeech, gender: nil, number: nil, plural: nil))
             }
         }
@@ -86,8 +98,9 @@ enum Vesum {
 
     /// A base form's part of speech as the app names it: a verb's
     /// infinitive, an adjective's (a participle's too) masculine
-    /// nominative, the uninflected parts as they are; a pronoun ("pron") and
-    /// the rest — "other word". `nil` — not a base form.
+    /// nominative, the uninflected parts as they are, a preposition apart; a
+    /// pronoun ("pron") and the rest — "other word". `nil` — not a base
+    /// form.
     private static func baseForm(_ part: String, _ tags: [String]) -> String? {
         if tags.contains("pron") { return tags.contains("v_naz") || part != "noun" && part != "adj" ? "otherWord" : nil }
         switch part {
@@ -95,7 +108,8 @@ enum Vesum {
         case "adj": return tags.contains("m") && tags.contains("v_naz") ? "adjective" : nil
         case "adv": return "adverb"
         case "part": return "particle"
-        case "prep", "conj", "intj", "numr", "noninfl": return "otherWord"
+        case "prep": return "preposition"
+        case "conj", "intj", "numr", "noninfl": return "otherWord"
         default: return nil
         }
     }

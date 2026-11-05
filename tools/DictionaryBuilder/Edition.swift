@@ -142,13 +142,15 @@ struct Edition {
         String(String.UnicodeScalarView(form.unicodeScalars.filter { $0 != "\u{0301}" }))
     }
 
-    /// The editions' parts of speech as the app names them; a word known
-    /// as another is kept as "other word", so the app knows it is none of
-    /// these. Names of people and places, affixes, verb forms of their own
-    /// (Spanish participles) are left out.
+    /// The editions' parts of speech as the app names them; a preposition
+    /// — and a postposition, which stands after its noun — is kept apart,
+    /// and a word known as another closed class is kept as "other word", so
+    /// the app knows it is none of these. Names of people and places,
+    /// affixes, verb forms of their own (Spanish participles) are left out.
     private static let partsOfSpeech: [String: String] = [
         "noun": "noun", "verb": "verb", "adj": "adjective", "adv": "adverb", "particle": "particle", "phrase": "phrase",
-        "prep": "otherWord", "pron": "otherWord", "conj": "otherWord", "intj": "otherWord", "num": "otherWord", "article": "otherWord",
+        "prep": "preposition", "postp": "preposition",
+        "pron": "otherWord", "conj": "otherWord", "intj": "otherWord", "num": "otherWord", "article": "otherWord",
         "det": "otherWord",
     ]
 

@@ -1,3 +1,9 @@
+// Each row holds part of speech, gender, number and plural, each
+// small-lettered for lookups. `meta` holds format, language, edition,
+// extract date, revision, source and licence. The revision (`revision`)
+// is what the builder made of the extract – 2 once a preposition is kept
+// apart. Also writing a new file.
+
 import Foundation
 import SQLite3
 
@@ -10,10 +16,18 @@ import SQLite3
 /// app's rules use ("noun", "feminine", "pluralOnly"); each word and
 /// plural also small-lettered for a lookup that ignores letter case;
 /// what the file is in `meta` — its format, language, edition, the
-/// extract's date, the source and its licence.
+/// extract's date, its revision, the source and its licence.
 public enum DictionaryFile {
     /// Changes when the shape does; a file of another format is not read.
     public static let format = 1
+
+    /// **What the builder made of an extract** — changes when the same
+    /// extract would become a different file (2: a preposition kept apart
+    /// from "other word"), so a file on a device of the same edition and
+    /// extract is known for an older one and replaced
+    /// (`DictionaryShelf.isCurrent`). A file or an entry with none is the
+    /// first.
+    public static let revision = 2
 
     /// One word as the file keeps it.
     public struct Entry: Hashable, Sendable {
