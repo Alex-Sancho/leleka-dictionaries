@@ -1,8 +1,8 @@
 // Each row holds part of speech, gender, number and plural, each
 // small-lettered for lookups. `meta` holds format, language, edition,
 // extract date, revision, source and licence. The revision (`revision`)
-// is what the builder made of the extract – 2 once a preposition is kept
-// apart. Also writing a new file.
+// is what the builder made of the extract – 3 once each closed class is a
+// class of its own. Also writing a new file.
 
 import Foundation
 import SQLite3
@@ -23,11 +23,12 @@ public enum DictionaryFile {
 
     /// **What the builder made of an extract** — changes when the same
     /// extract would become a different file (2: a preposition kept apart
-    /// from "other word"), so a file on a device of the same edition and
-    /// extract is known for an older one and replaced
-    /// (`DictionaryShelf.isCurrent`). A file or an entry with none is the
-    /// first.
-    public static let revision = 2
+    /// from "other word"; 3: each closed class — pronoun, numeral,
+    /// conjunction, interjection, article — a class of its own), so a file
+    /// on a device of the same edition and extract is known for an older
+    /// one and replaced (`DictionaryShelf.isCurrent`). A file or an entry
+    /// with none is the first.
+    public static let revision = 3
 
     /// One word as the file keeps it.
     public struct Entry: Hashable, Sendable {

@@ -26,9 +26,13 @@ struct Edition {
     /// inflected form an entry of its own, marked by its category or by a
     /// sense pointing to its base form.
     static let german = Edition(name: "de", source: "de.wiktionary.org, through kaikki.org") { object, language in
-        guard let (word, partOfSpeech) = baseForm(object, language),
-              !(object["categories"] as? [String] ?? []).contains(where: { $0.contains("Flektierte Form") })
+        let categories = object["categories"] as? [String] ?? []
+        guard let (word, read) = baseForm(object, language),
+              !categories.contains(where: { $0.contains("Flektierte Form") })
         else { return nil }
+        // The edition files an article ("der", "die") as a determiner in the
+        // category "Artikel (Deutsch)"; it writes no `article` of its own.
+        let partOfSpeech = read == "pronoun" && categories.contains(where: { $0.hasPrefix("Artikel (Deutsch)") }) ? "article" : read
         guard partOfSpeech == "noun" else { return other(word, partOfSpeech) }
         let forms = forms(object).filter { $0.tags.contains("nominative") && $0.form != "—" }
         let singular = forms.contains { $0.tags.contains("singular") }
@@ -142,16 +146,17 @@ struct Edition {
         String(String.UnicodeScalarView(form.unicodeScalars.filter { $0 != "\u{0301}" }))
     }
 
-    /// The editions' parts of speech as the app names them; a preposition
-    /// — and a postposition, which stands after its noun — is kept apart,
-    /// and a word known as another closed class is kept as "other word", so
-    /// the app knows it is none of these. Names of people and places,
-    /// affixes, verb forms of their own (Spanish participles) are left out.
+    /// The editions' parts of speech as the app names them: each closed
+    /// class a class of its own — a postposition, which stands after its
+    /// noun, a preposition; a determiner ("this", "mein") a pronoun, unless
+    /// the German edition files it as an article (`german`). Names
+    /// of people and places, affixes, verb forms of their own (Spanish
+    /// participles) are left out.
     private static let partsOfSpeech: [String: String] = [
         "noun": "noun", "verb": "verb", "adj": "adjective", "adv": "adverb", "particle": "particle", "phrase": "phrase",
         "prep": "preposition", "postp": "preposition",
-        "pron": "otherWord", "conj": "otherWord", "intj": "otherWord", "num": "otherWord", "article": "otherWord",
-        "det": "otherWord",
+        "pron": "pronoun", "det": "pronoun", "num": "numeral", "conj": "conjunction", "intj": "interjection",
+        "article": "article",
     ]
 
     private static let genderNames: [String: String] = [

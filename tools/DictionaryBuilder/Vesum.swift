@@ -98,18 +98,25 @@ enum Vesum {
 
     /// A base form's part of speech as the app names it: a verb's
     /// infinitive, an adjective's (a participle's too) masculine
-    /// nominative, the uninflected parts as they are, a preposition apart; a
-    /// pronoun ("pron") and the rest — "other word". `nil` — not a base
-    /// form.
+    /// nominative, each closed class a class of its own — a pronoun
+    /// ("pron", whatever it inflects as), a numeral, a conjunction, an
+    /// interjection, a preposition, a particle. Of the uninflected words
+    /// ("noninfl") a predicative ("predic": "треба", "можна") and a
+    /// parenthetical ("insert") are adverbs, as VESUM tags most of them
+    /// ("adv:predic", "adv:insert"); the rest — a foreign word, an
+    /// uninflected loan ("брутто") — "other word". `nil` — not a base form.
     private static func baseForm(_ part: String, _ tags: [String]) -> String? {
-        if tags.contains("pron") { return tags.contains("v_naz") || part != "noun" && part != "adj" ? "otherWord" : nil }
+        if tags.contains("pron") { return tags.contains("v_naz") || part != "noun" && part != "adj" ? "pronoun" : nil }
         switch part {
         case "verb": return tags.contains("inf") ? "verb" : nil
         case "adj": return tags.contains("m") && tags.contains("v_naz") ? "adjective" : nil
         case "adv": return "adverb"
         case "part": return "particle"
         case "prep": return "preposition"
-        case "conj", "intj", "numr", "noninfl": return "otherWord"
+        case "numr": return "numeral"
+        case "conj": return "conjunction"
+        case "intj": return "interjection"
+        case "noninfl": return tags.contains("predic") || tags.contains("insert") ? "adverb" : "otherWord"
         default: return nil
         }
     }

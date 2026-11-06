@@ -12,12 +12,12 @@ The dictionary is a modified version of **VESUM** (Великий електро
 | `tools/MorfologikDump/` | Reads the package's Morfologik automaton (CFSA2) and writes every word form as a line: form, base form, tags |
 | `tools/DictionaryBuilder/` | Keeps each base form with its part of speech and, for a noun, its gender, number and nominative plural (`Vesum.swift`), and writes Leleka's dictionary file (`DictionaryFile.swift`); `Edition.swift` reads Wiktionary for Leleka's other languages and is here because the builder compiles with it |
 | `build.sh` | Makes the file from the package with the tools |
-| `dictionary/uk.sqlite.lzma` | The file exactly as Leleka 0.1 (build 4) carries it, LZMA-compressed |
+| `dictionary/uk.sqlite.lzma` | The file exactly as Leleka carries it from 0.1 (build 5), LZMA-compressed |
 | `COPYING.LESSER` | The GNU Lesser General Public License, version 2.1 |
 
 ## What was changed
 
-VESUM lists every form of every word with its grammatical tags. Leleka's file keeps, for each base form, only its part of speech and, for a noun, its gender (where it has one only), its number (where it has one only) and its nominative plural (where VESUM gives one as common as any other). Calques, spellings outside the current rules, names and abbreviations are left out. The result is written as a SQLite file in Leleka's own shape. The file's `meta` table records its source, its licence and these changes with the date they were made (1 November 2026).
+VESUM lists every form of every word with its grammatical tags. Leleka's file keeps, for each base form, only its part of speech (each closed class – a pronoun, a numeral, a conjunction, an interjection, a preposition, a particle – a class of its own; a predicative and a parenthetical word an adverb) and, for a noun, its gender (where it has one only), its number (where it has one only) and its nominative plural (where VESUM gives one as common as any other). Calques, spellings outside the current rules, names and abbreviations are left out. The result is written as a SQLite file in Leleka's own shape. The file's `meta` table records its source, its licence and these changes with the date they were made (1 November 2026).
 
 ## Making it again
 
