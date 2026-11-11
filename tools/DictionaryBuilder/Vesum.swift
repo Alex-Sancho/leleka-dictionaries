@@ -13,7 +13,7 @@ import Foundation
 ///
 /// **The LGPL asks the changed file's source to go with it**: this
 /// reading, `Tools/MorfologikDump`, `DictionaryFile` and the package are
-/// published at github.com/Alex-Sancho/leleka-dictionary-uk, which
+/// published at github.com/Alex-Sancho/leleka-dictionaries, which
 /// "Acknowledgements → VESUM" names. A change to any of them, or a new
 /// Ukrainian file, goes there too — before the app carrying it reaches
 /// anyone.

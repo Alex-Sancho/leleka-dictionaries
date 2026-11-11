@@ -2,8 +2,9 @@ import Foundation
 
 /// **How one Wiktionary edition writes a word's facts** — each edition its
 /// own way, so each has its own reading. A language's words come from its
-/// own edition; a language kaikki.org reads no edition of (Ukrainian)
-/// takes them from the English one, which describes every language.
+/// own edition; a language kaikki.org reads no edition of (Romanian,
+/// Albanian) takes them from the English one, which describes every
+/// language.
 struct Edition {
     let name: String
     /// Where the words come from, as the acknowledgement names it.
@@ -12,7 +13,7 @@ struct Edition {
     /// form, or a part of speech a card has no use for.
     let entry: (_ object: [String: Any], _ language: String) -> DictionaryFile.Entry?
 
-    static let all: [Edition] = [german, french, spanish, english]
+    static let all: [Edition] = [german, french, spanish, dutch, turkish, vietnamese, english]
     static var names: [String] { all.map(\.name) }
 
     static func named(_ name: String) -> Edition? {
@@ -55,6 +56,49 @@ struct Edition {
 
     /// **The Spanish Wiktionary** — written as the French one.
     static let spanish = Edition(name: "es", source: "es.wiktionary.org, through kaikki.org") { object, language in
+        tagged(object, language)
+    }
+
+    /// **The Dutch Wiktionary**: a noun's gender among its tags — "neuter"
+    /// for a "het" word, "masculine", "feminine" or both for a "de" word,
+    /// written as the common gender; a noun with "plural" among its tags
+    /// plural only ("hersenen"), one only in the category "Ontelbaar"
+    /// (uncountable) and with no plural singular only ("melk"); the plural
+    /// the first form tagged plural alone, a numbered variant ("[2]
+    /// tafelen") left out.
+    static let dutch = Edition(name: "nl", source: "nl.wiktionary.org, through kaikki.org") { object, language in
+        guard let (word, partOfSpeech) = baseForm(object, language) else { return nil }
+        guard partOfSpeech == "noun" else { return other(word, partOfSpeech) }
+        let tags = tags(object)
+        let categories = object["categories"] as? [String] ?? []
+        let plural = forms(object).first { $0.tags == ["plural"] && !$0.form.hasPrefix("[") }?.form
+        let number: String? = tags.contains("plural") ? "pluralOnly"
+            : plural == nil && categories.contains("Ontelbaar") && !categories.contains("Telbaar") ? "singularOnly"
+            : nil
+        // The common gender is Dutch's own: written here, never read from
+        // tags by the editions' shared reading (`genderNames`), where an
+        // English entry's "common" beside "feminine" would leave its noun
+        // with two genders and so with none.
+        let gender = tags.contains("neuter") ? "neuter"
+            : tags.contains("masculine") || tags.contains("feminine") ? "common"
+            : nil
+        return DictionaryFile.Entry(word: word, partOfSpeech: "noun", gender: gender, number: number, plural: number == nil ? plural : nil)
+    }
+
+    /// **The Turkish Wiktionary**: no gender; the plural the form tagged
+    /// plural alone. An inflected word — a noun "kitaplarımdan", a verb
+    /// "beklettiler" — is an entry of its own in a category "Türkçe
+    /// çekimli …" (inflected nouns, verbs…) with no sense pointing to its
+    /// base form, so it is left out by that category.
+    static let turkish = Edition(name: "tr", source: "tr.wiktionary.org, through kaikki.org") { object, language in
+        let categories = object["categories"] as? [String] ?? []
+        guard !categories.contains(where: { $0.hasPrefix("Türkçe çekimli ") }) else { return nil }
+        return tagged(object, language)
+    }
+
+    /// **The Vietnamese Wiktionary** — written as the French one; a
+    /// Vietnamese noun has neither gender nor plural.
+    static let vietnamese = Edition(name: "vi", source: "vi.wiktionary.org, through kaikki.org") { object, language in
         tagged(object, language)
     }
 
